@@ -84,15 +84,15 @@ function EventPage() {
   return (
     <Flex w="100%" maxH="100vh">
       <Box
-        bg="brand.blue"
+        bg="teal.300"
         borderRadius={12}
         overflow="hidden"
-        boxShadow="lg"
-        color="brand.pink"
+        boxShadow="inner"
+        color="gray.900"
         w="100%"
         height={{
           base: "calc(100vh - 2 * 4rem)",
-          md: "calc(100vh - 2 * 0.5rem)",
+          md: "calc(100vh - 2 * 1rem)",
         }}
       >
         <Box
@@ -116,8 +116,6 @@ function EventPage() {
             left={0}
             width="100%"
             height="100%"
-            backdropFilter="grayscale(100%)"
-            bgColor="rgba(0, 39, 186, 0.8)"
             bgGradient="linear(to-br, rgb(255, 179, 193, 0.1),rgb(255, 179, 193, 0.5))"
             mixBlendMode="screen"
           />
@@ -125,12 +123,11 @@ function EventPage() {
 
         <Flex
           px={{ base: 5, sm: 7, md: 8 }}
-          py={{ base: 2, sm: 6, md: 8 }}
+          py={{ base: 2, sm: 6, md: 8, xl: 10 }}
           flexDirection="column"
           alignItems="stretch"
           justifyContent="center"
           flexWrap="nowrap"
-          // h="100%"
           h="max-content"
           w="100%"
           maxW="100%"
@@ -143,7 +140,7 @@ function EventPage() {
             {event.description}
           </Text>
 
-          <Stack direction="row" spacing={2} my={{ base: 2, sm: 4, md: 8 }}>
+          <Stack direction="row" spacing={2} my={{ base: 2, sm: 4, md: 6 }}>
             {event.categoryIds.map((id) => {
               const category = categories.find((cat) => cat.id === id);
               return (
@@ -152,8 +149,9 @@ function EventPage() {
                   fontSize="1em"
                   borderRadius={12}
                   px={3}
-                  bg="brand.pink"
-                  color="brand.blue"
+                  bg="teal.400"
+                  boxShadow="base"
+                  color="gray.900"
                   fontWeight={400}
                 >
                   {category?.name}
@@ -162,10 +160,10 @@ function EventPage() {
             })}
           </Stack>
 
-          <Text color="brand.pink" fontWeight={250} fontSize="lg" my={1}>
+          <Text color="gray.900" fontWeight={250} fontSize="lg" my={1}>
             Location: {event.location}
           </Text>
-          <Text color="brand.pink" fontWeight={250} fontSize="lg" my={1}>
+          <Text color="gray.900" fontWeight={250} fontSize="lg" my={1}>
             Date: {new Date(event.startTime).toLocaleDateString()} -{" "}
             {new Date(event.endTime).toLocaleDateString()}
           </Text>
@@ -174,7 +172,7 @@ function EventPage() {
             <Flex align="center">
               <Avatar src={creator?.image} />
               <Text
-                color="brand.pink"
+                color="gray.900"
                 fontWeight={250}
                 fontSize="md"
                 my={2}
@@ -186,46 +184,41 @@ function EventPage() {
 
             <Flex direction={{ base: "column", md: "row" }} gap={3}>
               <Button
-                bg="brand.blue"
-                color="brand.pink"
-                fontWeight={400}
+                fontWeight={500}
                 borderRadius="full"
                 textTransform="uppercase"
-                fontSize="md"
                 w="120px"
-                size="md"
-                borderWidth="2px"
-                borderColor="brand.pink"
                 onClick={onDeleteOpen}
-                transition="all 0.2s ease-in-out"
+                variant="ghost"
                 _hover={{
-                  bg: "brand.pink",
-                  color: "brand.blue",
-                  borderColor: "brand.pink",
-                  borderWidth: "2px",
-                  textDecoration: "none",
+                  transform: "scale(1.03)",
+                  bg: "teal.800",
+                  boxShadow: "lg",
                 }}
+                bg="teal.900"
+                color="teal.50"
+                transition="all 0.2s ease-in-out"
+                size="lg"
+                boxShadow="md"
               >
                 Delete
               </Button>
               <Button
-                bg="brand.pink"
-                color="brand.blue"
+                boxShadow="md"
                 borderRadius="full"
                 fontWeight={500}
                 textTransform="uppercase"
                 w="120px"
-                fontSize="md"
-                size="md"
                 onClick={onEditOpen}
-                transition="all 0.2s ease-in-out"
+                variant="ghost"
                 _hover={{
-                  color: "brand.pink",
-                  bg: "brand.blue",
-                  borderWidth: "2px",
-                  borderColor: "brand.pink",
-                  textDecoration: "none",
+                  transform: "scale(1.03)",
+                  bg: "teal.100",
+                  boxShadow: "lg",
                 }}
+                size="lg"
+                bg="teal.50"
+                transition="all 0.2s ease-in-out"
               >
                 Edit
               </Button>
@@ -243,7 +236,7 @@ function EventPage() {
         isCentered
       >
         <AlertDialogOverlay>
-          <AlertDialogContent bg="gray.100" color="brand.blue" textAlign="left">
+          <AlertDialogContent bg="white" color="gray.900" textAlign="left">
             <AlertDialogHeader fontWeight={450} pb={0}>
               Delete Event
             </AlertDialogHeader>
@@ -254,47 +247,41 @@ function EventPage() {
               <Button
                 ref={cancelRef}
                 onClick={onDeleteClose}
-                borderRadius="full"
-                bg="brand.blue"
-                color="white"
-                fontWeight={500}
-                textTransform="uppercase"
-                fontSize="sm"
-                w="100px"
-                size="sm"
-                transition="all 0.2s ease-in-out"
+                variant="ghost"
                 _hover={{
-                  color: "white",
-                  bg: "rgba(0, 39, 186, 0.9)",
-                  borderWidth: "2px",
-                  borderColor: "brand.blue",
-                  textDecoration: "none",
+                  transform: "scale(1.03)",
+                  bg: "teal.100",
                 }}
+                size="md"
+                bg="teal.50"
+                boxShadow="base"
+                transition="all 0.2s ease-in-out"
+                borderRadius="full"
+                fontWeight={450}
+                textTransform="uppercase"
+                mr={3}
               >
                 Cancel
               </Button>
-              <Button
-                // bg="brand.blue"
-                color="brand.blue"
-                onClick={handleDelete}
-                ml={2}
-                borderRadius="full"
-                fontWeight={500}
-                textTransform="uppercase"
-                fontSize="sm"
-                w="100px"
-                borderWidth="2px"
-                borderColor="brand.pink"
-                size="sm"
-                transition="all 0.2s ease-in-out"
-                _hover={{
-                  color: "white",
-                  bg: "brand.pink",
 
-                  textDecoration: "none",
+              <Button
+                variant="ghost"
+                onClick={handleDelete}
+                _hover={{
+                  transform: "scale(1.03)",
+                  bg: "teal.800",
                 }}
+                size="md"
+                bg="teal.900"
+                color="teal.50"
+                boxShadow="base"
+                transition="all 0.2s ease-in-out"
+                type="submit"
+                borderRadius="full"
+                fontWeight={450}
+                textTransform="uppercase"
               >
-                Delete
+                Delete Event{" "}
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>

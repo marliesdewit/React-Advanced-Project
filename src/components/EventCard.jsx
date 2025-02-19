@@ -27,45 +27,19 @@ function EventCard({ event }) {
 
     gsap.fromTo(
       card,
-      { opacity: 0, scale: 0.8, y: 30 },
+      { opacity: 0, scale: 0.9, y: 20 },
       {
         opacity: 1,
         scale: 1,
         y: 0,
-        duration: 0.7,
-        ease: "back.out(1.6)",
+        duration: 0.6,
+        ease: "power2.out",
       }
     );
-
-    const hoverIn = () => {
-      gsap.to(card, {
-        scale: 0.99,
-        duration: 0.2,
-        ease: "power1.out",
-        transformOrigin: "center center",
-      });
-    };
-
-    const hoverOut = () => {
-      gsap.to(card, {
-        scale: 1,
-        duration: 0.15,
-        ease: "power1.in",
-        transformOrigin: "center center",
-      });
-    };
-
-    card.addEventListener("mouseenter", hoverIn);
-    card.addEventListener("mouseleave", hoverOut);
-
-    return () => {
-      card.removeEventListener("mouseenter", hoverIn);
-      card.removeEventListener("mouseleave", hoverOut);
-    };
-  }, []);
+  });
 
   const formatDate = (dateString) =>
-    new Date(dateString).toLocaleDateString("en-US", {
+    new Date(dateString).toLocaleDateString("nl-NL", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -79,94 +53,61 @@ function EventCard({ event }) {
       .filter(Boolean);
 
   return (
-    <Link to={`/event/${event.id}`} style={{ width: "100%", height: "100%" }}>
+    <Link to={`/event/${event.id}`} className="eventCard">
       <Flex
         ref={cardRef}
-        className="card"
-        borderRadius="12px"
-        // boxShadow="base"
-        boxShadow="0px 4px 6px -2px rgba(0, 0, 0, 0.1)" // Alleen onderkant schaduw
-        // _hover={{ boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.2)" }}
-        overflow="hidden"
-        bg="brand.blue"
         flexDirection="column"
+        borderRadius="16px"
+        boxShadow="0px 4px 10px rgba(0, 0, 0, 0.1)"
+        overflow="hidden"
+        bg="white"
         width="100%"
-        opacity="0"
-        transform="scale(0.8) translateY(30px)"
-        position="relative"
-        height="100%"
-        maxH={{ base: "70vh", md: "55vh" }}
+        h="auto"
+        maxW="350px"
       >
-        <Box
-          position="relative"
-          width="100%"
-          height="100%"
-          maxH={{ base: "250px", md: "200px" }}
-        >
+        <Box position="relative" height="210px" p={2}>
           <Image
             src={event.image}
             alt={event.title}
             width="100%"
             height="100%"
             objectFit="cover"
-            maxH={{ base: "250px", md: "200px" }}
-          />
-          <Box
-            position="absolute"
-            top={0}
-            left={0}
-            width="100%"
-            height="100%"
-            backdropFilter="grayscale(100%)"
-            bgColor="rgba(0, 39, 186, 0.8)"
-            bgGradient="linear(to-br, rgb(255, 179, 193, 0.1),rgb(255, 179, 193, 0.5))"
-            mixBlendMode="screen"
-            maxH={{ base: "250px", md: "200px" }}
+            borderRadius={12}
+            boxShadow="base"
           />
           <Stack
             direction="row"
             position="absolute"
-            top={3}
-            left={3}
+            top={4}
+            left={4}
             spacing={2}
           >
             {getEventCategories().map((category, index) => (
               <Badge
                 key={index}
                 fontSize="0.8em"
-                borderRadius={12}
-                px={3}
-                bg="brand.pink"
-                color="brand.blue"
-                boxShadow="base"
-                fontWeight={400}
+                borderRadius="12px"
+                px={2}
+                py={1}
+                color="black"
+                fontWeight="600"
+                colorScheme="teal"
+                boxShadow="inner"
               >
                 {category}
               </Badge>
             ))}
           </Stack>
         </Box>
-        <Box p={6} flex="1">
-          <Heading
-            size="md"
-            mb={1}
-            noOfLines={2}
-            color="brand.pink"
-            fontWeight={550}
-            textTransform="uppercase"
-          >
+
+        <Box px={5} py={2} mb={2}>
+          <Heading size="md" mb={2} color="gray.800">
             {event.title}
           </Heading>
-          <Text noOfLines={2} mb={4} color="brand.pink" fontWeight={250}>
+          <Text fontSize="sm" mb={3} color="gray.600">
             {event.description}
           </Text>
-          <Flex
-            direction="column"
-            gap={1}
-            fontSize="sm"
-            color="brand.pink"
-            fontWeight={200}
-          >
+          <Flex direction="column" fontSize="sm" color="gray.500">
             <Text>Start: {formatDate(event.startTime)}</Text>
             <Text>Einde: {formatDate(event.endTime)}</Text>
           </Flex>

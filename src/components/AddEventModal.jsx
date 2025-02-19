@@ -14,17 +14,19 @@ import {
   Button,
   Stack,
   useToast,
-  Select,
+  Checkbox,
+  CheckboxGroup,
 } from "@chakra-ui/react";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useEvents } from "../context/EventsContext";
+import { useNavigate } from "react-router-dom";
 
 function AddEventModal({ isOpen, onClose }) {
   const { categories, addEvent } = useEvents();
-  const modalRef = useRef(null);
   const toast = useToast();
   const cancelRef = useRef();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -41,7 +43,6 @@ function AddEventModal({ isOpen, onClose }) {
 
   const validate = () => {
     const newErrors = {};
-
     if (!formData.title) newErrors.title = "Title is required.";
     if (!formData.description)
       newErrors.description = "Description is required.";
@@ -51,8 +52,9 @@ function AddEventModal({ isOpen, onClose }) {
     if (new Date(formData.startTime) >= new Date(formData.endTime)) {
       newErrors.endTime = "End time must be after start time.";
     }
-    if (formData.categoryIds.length === 0)
+    if (formData.categoryIds.length === 0) {
       newErrors.categoryIds = "At least one category must be selected.";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -60,7 +62,6 @@ function AddEventModal({ isOpen, onClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validate()) {
       toast({
         title: "Validation Error",
@@ -73,16 +74,18 @@ function AddEventModal({ isOpen, onClose }) {
     }
 
     try {
-      await addEvent({
+      const newEvent = await addEvent({
         ...formData,
-        categoryIds: formData.categoryIds.map((id) => parseInt(id)),
+        categoryIds: formData.categoryIds.map(Number),
       });
+
       toast({
         title: "Event created.",
         status: "success",
         duration: 5000,
         isClosable: true,
       });
+
       onClose();
       setFormData({
         title: "",
@@ -95,6 +98,7 @@ function AddEventModal({ isOpen, onClose }) {
         createdBy: 1,
       });
       setErrors({});
+      navigate(`/event/${newEvent.id}`);
     } catch (error) {
       toast({
         title: "Error creating event.",
@@ -104,24 +108,6 @@ function AddEventModal({ isOpen, onClose }) {
         isClosable: true,
       });
     }
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (name === "categoryIds") {
-      const selectedOptions = Array.from(
-        e.target.selectedOptions,
-        (option) => option.value
-      );
-      setFormData((prev) => ({ ...prev, [name]: selectedOptions }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
-  };
-
-  const brandColors = {
-    blue: "rgb(0, 39, 186)",
-    pink: "rgb(255, 179, 193)",
   };
 
   return (
@@ -137,148 +123,136 @@ function AddEventModal({ isOpen, onClose }) {
     >
       <AlertDialogOverlay />
       <AlertDialogContent
-        bg="gray.100"
-        color={brandColors.blue}
+        bg="white"
+        color="gray.900"
         borderRadius={12}
         boxShadow="lg"
         p={5}
+        mt={2}
         maxW={{ base: "95%", md: "600px" }}
         fontFamily="Inter Tight"
       >
         <form onSubmit={handleSubmit}>
           <AlertDialogHeader
-            fontSize="xl"
+            fontSize="2xl"
             fontWeight="medium"
             textTransform="uppercase"
           >
             Create New Event
           </AlertDialogHeader>
-          <AlertDialogCloseButton _hover={{ bg: brandColors.pink }} />
+          <AlertDialogCloseButton
+            _hover={{
+              transform: "scale(1.1)",
+              bg: "teal.100",
+            }}
+            m={6}
+            size="lg"
+            bg="teal.50"
+            boxShadow="base"
+            transition="all 0.2s ease-in-out"
+          />
           <AlertDialogBody>
             <Stack spacing={4}>
               <FormControl isInvalid={errors.title}>
-                <FormLabel fontWeight="medium">Title</FormLabel>
+                <FormLabel>Title</FormLabel>
                 <Input
                   name="title"
                   value={formData.title}
-                  onChange={handleChange}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
                   placeholder="Event Title"
-                  _placeholder={{ color: "rgba(0, 40, 186, 0.42)" }}
-                  borderColor={brandColors.pink}
-                  focusBorderColor={brandColors.blue}
-                  _hover={{ borderColor: "brand.pink" }}
-                  _focus={{ borderColor: "brand.blue" }}
-                  _active={{ borderColor: "transparent" }}
                 />
                 <FormErrorMessage>{errors.title}</FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={errors.description}>
-                <FormLabel fontWeight="medium">Description</FormLabel>
+                <FormLabel>Description</FormLabel>
                 <Textarea
                   name="description"
                   value={formData.description}
-                  onChange={handleChange}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
                   placeholder="Event Description"
-                  _placeholder={{ color: "rgba(0, 40, 186, 0.42)" }}
-                  borderColor={brandColors.pink}
-                  focusBorderColor={brandColors.blue}
-                  _hover={{ borderColor: "brand.pink" }}
-                  _focus={{ borderColor: "brand.blue" }}
-                  _active={{ borderColor: "transparent" }}
                 />
                 <FormErrorMessage>{errors.description}</FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={errors.image}>
-                <FormLabel fontWeight="medium">Image URL</FormLabel>
+                <FormLabel>Image URL</FormLabel>
                 <Input
                   name="image"
                   value={formData.image}
-                  onChange={handleChange}
+                  onChange={(e) =>
+                    setFormData({ ...formData, image: e.target.value })
+                  }
                   placeholder="Event Image URL"
-                  borderColor={brandColors.pink}
-                  _placeholder={{ color: "rgba(0, 40, 186, 0.42)" }}
-                  focusBorderColor={brandColors.blue}
-                  _hover={{ borderColor: "brand.pink" }}
-                  _focus={{ borderColor: "brand.blue" }}
-                  _active={{ borderColor: "transparent" }}
                 />
                 <FormErrorMessage>{errors.image}</FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={errors.location}>
-                <FormLabel fontWeight="medium">Location</FormLabel>
+                <FormLabel>Location</FormLabel>
                 <Input
                   name="location"
                   value={formData.location}
-                  onChange={handleChange}
+                  onChange={(e) =>
+                    setFormData({ ...formData, location: e.target.value })
+                  }
                   placeholder="Event Location"
-                  borderColor={brandColors.pink}
-                  _placeholder={{ color: "rgba(0, 40, 186, 0.42)" }}
-                  focusBorderColor={brandColors.blue}
-                  _hover={{ borderColor: "brand.pink" }}
-                  _focus={{ borderColor: "brand.blue" }}
-                  _active={{ borderColor: "transparent" }}
                 />
                 <FormErrorMessage>{errors.location}</FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={errors.startTime}>
-                <FormLabel fontWeight="medium">Start Time</FormLabel>
+                <FormLabel>Start Time</FormLabel>
                 <Input
                   type="datetime-local"
                   name="startTime"
                   value={formData.startTime}
-                  onChange={handleChange}
-                  color="rgba(0, 40, 186, 0.42)"
-                  borderColor={brandColors.pink}
-                  focusBorderColor={brandColors.blue}
-                  _hover={{ borderColor: "brand.pink" }}
-                  _focus={{ borderColor: "brand.blue" }}
-                  _active={{ borderColor: "transparent" }}
+                  onChange={(e) =>
+                    setFormData({ ...formData, startTime: e.target.value })
+                  }
                 />
                 <FormErrorMessage>{errors.startTime}</FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={errors.endTime}>
-                <FormLabel fontWeight="medium">End Time</FormLabel>
+                <FormLabel>End Time</FormLabel>
                 <Input
                   type="datetime-local"
                   name="endTime"
                   value={formData.endTime}
-                  onChange={handleChange}
-                  borderColor={brandColors.pink}
-                  color="rgba(0, 40, 186, 0.42)"
-                  focusBorderColor={brandColors.blue}
-                  _hover={{ borderColor: "brand.pink" }}
-                  _focus={{ borderColor: "brand.blue" }}
-                  _active={{ borderColor: "transparent" }}
+                  onChange={(e) =>
+                    setFormData({ ...formData, endTime: e.target.value })
+                  }
                 />
                 <FormErrorMessage>{errors.endTime}</FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={errors.categoryIds}>
-                <FormLabel fontWeight="medium">Category</FormLabel>
-                <Select
-                  name="categoryIds"
-                  borderColor={brandColors.pink}
-                  focusBorderColor={brandColors.blue}
-                  // multiple
-                  onChange={handleChange}
-                  value={formData.categoryIds}
-                  color="rgba(0, 40, 186, 0.42)"
-                  size="md"
-                  _hover={{ borderColor: "brand.pink" }}
-                  _focus={{ borderColor: "brand.blue" }}
-                  _active={{ borderColor: "transparent" }}
+                <FormLabel>Categories</FormLabel>
+                <CheckboxGroup
+                  colorScheme="teal"
+                  value={formData.categoryIds.map(String)}
+                  onChange={(selected) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      categoryIds: selected.map(Number),
+                    }))
+                  }
                 >
                   {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
+                    <Checkbox
+                      key={category.id}
+                      p={1}
+                      value={String(category.id)}
+                    >
                       {category.name}
-                    </option>
+                    </Checkbox>
                   ))}
-                </Select>
+                </CheckboxGroup>
                 <FormErrorMessage>{errors.categoryIds}</FormErrorMessage>
               </FormControl>
             </Stack>
@@ -286,31 +260,43 @@ function AddEventModal({ isOpen, onClose }) {
 
           <AlertDialogFooter>
             <Button
-              bg={brandColors.blue}
-              color="white"
-              _hover={{ bg: "rgba(0, 39, 186, 0.9)" }}
-              type="submit"
-              mr={3}
-              borderRadius="full"
-              fontWeight={450}
-              textTransform="uppercase"
-              size="sm"
-            >
-              Create Event
-            </Button>
-            <Button
               ref={cancelRef}
-              variant="outline"
-              borderColor={brandColors.pink}
-              color={brandColors.blue}
-              _hover={{ bg: brandColors.pink, color: "white" }}
+              variant="ghost"
               onClick={onClose}
+              _hover={{
+                transform: "scale(1.03)",
+                bg: "teal.100",
+              }}
+              size="md"
+              bg="teal.50"
+              boxShadow="base"
+              transition="all 0.2s ease-in-out"
               borderRadius="full"
               fontWeight={450}
               textTransform="uppercase"
-              size="sm"
+              mr={3}
             >
               Cancel
+            </Button>
+            <Button
+              colorScheme="teal"
+              type="submit"
+              variant="ghost"
+              _hover={{
+                transform: "scale(1.03)",
+                bg: "teal.800",
+              }}
+              size="md"
+              bg="teal.900"
+              color="teal.50"
+              mr={2}
+              boxShadow="base"
+              transition="all 0.2s ease-in-out"
+              borderRadius="full"
+              fontWeight={450}
+              textTransform="uppercase"
+            >
+              Create Event
             </Button>
           </AlertDialogFooter>
         </form>

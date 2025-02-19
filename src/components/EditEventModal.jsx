@@ -10,19 +10,23 @@ import {
   FormLabel,
   Input,
   Textarea,
-  Select,
   FormErrorMessage,
   Button,
   Stack,
   useToast,
+  CheckboxGroup,
+  Checkbox,
 } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { useEvents } from "../context/EventsContext";
+import { useNavigate } from "react-router-dom";
 
 function EditEventModal({ isOpen, onClose, event }) {
   const { categories, updateEvent } = useEvents();
   const toast = useToast();
   const cancelRef = useRef();
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -34,31 +38,70 @@ function EditEventModal({ isOpen, onClose, event }) {
     createdBy: 1,
   });
 
+  const [errors, setErrors] = useState({});
+
   useEffect(() => {
     if (event) {
       setFormData({
-        ...event,
-        startTime: new Date(event.startTime).toISOString().slice(0, 16),
-        endTime: new Date(event.endTime).toISOString().slice(0, 16),
+        title: event.title || "",
+        description: event.description || "",
+        image: event.image || "",
+        startTime: event.startTime || "",
+        endTime: event.endTime || "",
+        location: event.location || "",
+        categoryIds: event.categoryIds ? event.categoryIds.map(String) : [],
+        createdBy: event.createdBy || 1,
       });
     }
   }, [event]);
 
+  const validate = () => {
+    const newErrors = {};
+    if (!formData.title) newErrors.title = "Title is required.";
+    if (!formData.description)
+      newErrors.description = "Description is required.";
+    if (!formData.image) newErrors.image = "Image URL is required.";
+    if (!formData.startTime) newErrors.startTime = "Start time is required.";
+    if (!formData.endTime) newErrors.endTime = "End time is required.";
+    if (new Date(formData.startTime) >= new Date(formData.endTime)) {
+      newErrors.endTime = "End time must be after start time.";
+    }
+    if (formData.categoryIds.length === 0) {
+      newErrors.categoryIds = "At least one category must be selected.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validate()) {
+      toast({
+        title: "Validation Error",
+        description: "Fix errors and try again.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
     try {
       await updateEvent(event.id, {
         ...formData,
-        categoryIds: formData.categoryIds.map((id) => parseInt(id)),
+        categoryIds: formData.categoryIds.map(Number),
       });
+
       toast({
-        title: "Event updated.",
-        description: "We've updated your event for you.",
+        title: "Event updated successfully.",
         status: "success",
         duration: 5000,
         isClosable: true,
       });
+
       onClose();
+      navigate(`/event/${event.id}`);
     } catch (error) {
       toast({
         title: "Error updating event.",
@@ -83,11 +126,6 @@ function EditEventModal({ isOpen, onClose, event }) {
     }
   };
 
-  const brandColors = {
-    blue: "rgb(0, 39, 186)",
-    pink: "rgb(255, 179, 193)",
-  };
-
   return (
     <AlertDialog
       isOpen={isOpen}
@@ -101,23 +139,34 @@ function EditEventModal({ isOpen, onClose, event }) {
     >
       <AlertDialogOverlay />
       <AlertDialogContent
-        bg="gray.100"
-        color={brandColors.blue}
+        bg="white"
+        color="gray.900"
         borderRadius={12}
         boxShadow="lg"
         p={5}
+        mt={2}
         maxW={{ base: "95%", md: "600px" }}
         fontFamily="Inter Tight"
       >
         <form onSubmit={handleSubmit}>
           <AlertDialogHeader
-            fontSize="xl"
+            fontSize="2xl"
             fontWeight="medium"
             textTransform="uppercase"
           >
             Edit Event
           </AlertDialogHeader>
-          <AlertDialogCloseButton _hover={{ bg: brandColors.pink }} />
+          <AlertDialogCloseButton
+            _hover={{
+              transform: "scale(1.1)",
+              bg: "teal.100",
+            }}
+            m={6}
+            size="lg"
+            bg="teal.50"
+            boxShadow="base"
+            transition="all 0.2s ease-in-out"
+          />
           <AlertDialogBody>
             <Stack spacing={4}>
               <FormControl isRequired>
@@ -127,11 +176,11 @@ function EditEventModal({ isOpen, onClose, event }) {
                   value={formData.title}
                   onChange={handleChange}
                   placeholder="Event Title"
-                  _placeholder={{ color: "rgba(0, 40, 186, 0.42)" }}
-                  borderColor={brandColors.pink}
-                  focusBorderColor={brandColors.blue}
-                  _hover={{ borderColor: brandColors.pink }}
-                  _focus={{ borderColor: brandColors.blue }}
+                  borderColor="teal.200"
+                  focusBorderColor="teal.800"
+                  colorScheme="teal"
+                  _hover={{ borderColor: "teal.800" }}
+                  _focus={{ borderColor: "teal.800" }}
                   _active={{ borderColor: "transparent" }}
                 />
               </FormControl>
@@ -143,11 +192,11 @@ function EditEventModal({ isOpen, onClose, event }) {
                   value={formData.description}
                   onChange={handleChange}
                   placeholder="Event Description"
-                  _placeholder={{ color: "rgba(0, 40, 186, 0.42)" }}
-                  borderColor={brandColors.pink}
-                  focusBorderColor={brandColors.blue}
-                  _hover={{ borderColor: brandColors.pink }}
-                  _focus={{ borderColor: brandColors.blue }}
+                  borderColor="teal.200"
+                  focusBorderColor="teal.800"
+                  colorScheme="teal"
+                  _hover={{ borderColor: "teal.800" }}
+                  _focus={{ borderColor: "teal.800" }}
                   _active={{ borderColor: "transparent" }}
                 />
               </FormControl>
@@ -159,11 +208,11 @@ function EditEventModal({ isOpen, onClose, event }) {
                   value={formData.image}
                   onChange={handleChange}
                   placeholder="Event Image URL"
-                  borderColor={brandColors.pink}
-                  _placeholder={{ color: "rgba(0, 40, 186, 0.42)" }}
-                  focusBorderColor={brandColors.blue}
-                  _hover={{ borderColor: brandColors.pink }}
-                  _focus={{ borderColor: brandColors.blue }}
+                  borderColor="teal.200"
+                  focusBorderColor="teal.800"
+                  colorScheme="teal"
+                  _hover={{ borderColor: "teal.800" }}
+                  _focus={{ borderColor: "teal.800" }}
                   _active={{ borderColor: "transparent" }}
                 />
               </FormControl>
@@ -175,11 +224,11 @@ function EditEventModal({ isOpen, onClose, event }) {
                   value={formData.location}
                   onChange={handleChange}
                   placeholder="Event Location"
-                  borderColor={brandColors.pink}
-                  _placeholder={{ color: "rgba(0, 40, 186, 0.42)" }}
-                  focusBorderColor={brandColors.blue}
-                  _hover={{ borderColor: brandColors.pink }}
-                  _focus={{ borderColor: brandColors.blue }}
+                  borderColor="teal.200"
+                  focusBorderColor="teal.800"
+                  colorScheme="teal"
+                  _hover={{ borderColor: "teal.800" }}
+                  _focus={{ borderColor: "teal.800" }}
                   _active={{ borderColor: "transparent" }}
                 />
               </FormControl>
@@ -191,11 +240,11 @@ function EditEventModal({ isOpen, onClose, event }) {
                   name="startTime"
                   value={formData.startTime}
                   onChange={handleChange}
-                  color="rgba(0, 40, 186, 0.42)"
-                  borderColor={brandColors.pink}
-                  focusBorderColor={brandColors.blue}
-                  _hover={{ borderColor: brandColors.pink }}
-                  _focus={{ borderColor: brandColors.blue }}
+                  borderColor="teal.200"
+                  focusBorderColor="teal.800"
+                  colorScheme="teal"
+                  _hover={{ borderColor: "teal.800" }}
+                  _focus={{ borderColor: "teal.800" }}
                   _active={{ borderColor: "transparent" }}
                 />
               </FormControl>
@@ -207,66 +256,80 @@ function EditEventModal({ isOpen, onClose, event }) {
                   name="endTime"
                   value={formData.endTime}
                   onChange={handleChange}
-                  borderColor={brandColors.pink}
-                  color="rgba(0, 40, 186, 0.42)"
-                  focusBorderColor={brandColors.blue}
-                  _hover={{ borderColor: brandColors.pink }}
-                  _focus={{ borderColor: brandColors.blue }}
+                  borderColor="teal.200"
+                  focusBorderColor="teal.800"
+                  colorScheme="teal"
+                  _hover={{ borderColor: "teal.800" }}
+                  _focus={{ borderColor: "teal.800" }}
                   _active={{ borderColor: "transparent" }}
                 />
               </FormControl>
 
-              <FormControl isRequired>
+              <FormControl isInvalid={errors.categoryIds}>
                 <FormLabel fontWeight="medium">Category</FormLabel>
-                <Select
-                  name="categoryIds"
-                  value={formData.categoryIds}
-                  onChange={handleChange}
-                  color="rgba(0, 40, 186, 0.42)"
-                  size="md"
-                  borderColor={brandColors.pink}
-                  focusBorderColor={brandColors.blue}
-                  _hover={{ borderColor: brandColors.pink }}
-                  _focus={{ borderColor: brandColors.blue }}
-                  _active={{ borderColor: "transparent" }}
+                <CheckboxGroup
+                  colorScheme="teal"
+                  value={formData.categoryIds.map(String)}
+                  onChange={(selected) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      categoryIds: selected.map(Number),
+                    }))
+                  }
                 >
                   {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
+                    <Checkbox
+                      p={1}
+                      key={category.id}
+                      value={String(category.id)}
+                    >
                       {category.name}
-                    </option>
+                    </Checkbox>
                   ))}
-                </Select>
+                </CheckboxGroup>
+                <FormErrorMessage>{errors.categoryIds}</FormErrorMessage>
               </FormControl>
             </Stack>
           </AlertDialogBody>
 
           <AlertDialogFooter>
             <Button
-              bg={brandColors.blue}
-              color="white"
-              _hover={{ bg: "rgba(0, 39, 186, 0.9)" }}
-              type="submit"
-              mr={3}
-              borderRadius="full"
-              fontWeight={450}
-              textTransform="uppercase"
-              size="sm"
-            >
-              Update Event
-            </Button>
-            <Button
               ref={cancelRef}
-              variant="outline"
-              borderColor={brandColors.pink}
-              color={brandColors.blue}
-              _hover={{ bg: brandColors.pink, color: "white" }}
+              variant="ghost"
+              _hover={{
+                transform: "scale(1.03)",
+                bg: "teal.100",
+              }}
+              size="md"
+              bg="teal.50"
+              boxShadow="base"
+              transition="all 0.2s ease-in-out"
               onClick={onClose}
               borderRadius="full"
               fontWeight={450}
               textTransform="uppercase"
-              size="sm"
+              mr={3}
             >
               Cancel
+            </Button>
+            <Button
+              variant="ghost"
+              _hover={{
+                transform: "scale(1.03)",
+                bg: "teal.800",
+              }}
+              size="md"
+              bg="teal.900"
+              color="teal.50"
+              mr={2}
+              boxShadow="base"
+              transition="all 0.2s ease-in-out"
+              type="submit"
+              borderRadius="full"
+              fontWeight={450}
+              textTransform="uppercase"
+            >
+              Update Event
             </Button>
           </AlertDialogFooter>
         </form>

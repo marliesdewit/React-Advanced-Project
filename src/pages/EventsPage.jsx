@@ -14,6 +14,8 @@ import {
   InputGroup,
   InputLeftElement,
   StatGroup,
+  Box,
+  Divider,
 } from "@chakra-ui/react";
 import { Search2Icon } from "@chakra-ui/icons";
 import { useEvents } from "../context/EventsContext";
@@ -53,117 +55,86 @@ function EventsPage() {
   }
 
   return (
-    <Flex direction="column" w="100%" minH="100vh" mx="auto" ref={filterRef}>
-      <VStack spacing={2} align="stretch" w="100%">
-        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={2}>
-          <InputGroup
-            borderRadius={12}
-            color="brand.pink"
-            transition="all 0.25s ease-in-out"
-            _hover={{
-              transform: "scale(0.99)",
-              color: "brand.blue",
-              bg: "brand.pink",
-              _placeholder: { color: "brand.blue" },
-            }}
-          >
+    <Flex
+      direction="column"
+      w="100%"
+      h="100%"
+      align="center"
+      justify="center"
+      gap={4}
+      ref={filterRef}
+      zIndex={10}
+      position="relative"
+    >
+      <Box
+        p={4}
+        borderRadius="lg"
+        w="100%"
+        flexShrink={1}
+        position="relative"
+        h="fit-content"
+        zIndex={10000}
+      >
+        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+          <InputGroup>
+            <InputLeftElement>{<Search2Icon />}</InputLeftElement>
             <Input
-              boxShadow="xl"
               placeholder="Search events..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              transition="all 0.25s ease-in-out"
               variant="filled"
-              color="brand.pink"
-              bg="brand.blue"
-              fontWeight={400}
-              _placeholder={{ color: "inherit" }}
-              textTransform="uppercase"
-              _hover={{
-                // transform: "scale(1.02)",
-                color: "brand.blue",
-                bg: "brand.pink",
-                _placeholder: { color: "inherit" },
-              }}
+              color="black"
+              bg="teal.100"
               focusBorderColor="transparent"
-              borderRadius={12}
-              _active={{ bg: "brand.pink", color: "brand.blue" }}
-              _focus={{ bg: "brand.pink", color: "brand.blue" }}
+              transition="all 0.3s ease-in-out"
+              borderRadius="md"
+              _hover={{ bg: "teal.200" }}
+              _focus={{ bg: "teal.300" }}
             />
-            <InputLeftElement>{<Search2Icon />}</InputLeftElement>
           </InputGroup>
 
-          <StatGroup
-            transition="all 0.25s ease-in-out"
-            borderRadius={12}
-            _hover={{
-              transform: "scale(0.99)",
-              color: "brand.blue",
-              bg: "brand.pink",
-              _placeholder: { color: "brand.blue" },
-            }}
+          <Select
+            placeholder="Filter by category"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            variant="filled"
+            borderRadius="md"
+            color="black"
+            focusBorderColor="transparent"
+            bg="teal.100"
+            _hover={{ bg: "teal.200" }}
+            _focus={{ bg: "teal.300" }}
+            transition="all 0.3s ease-in-out"
           >
-            <Select
-              placeholder="Filter by category"
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              variant="filled"
-              borderRadius={12}
-              color="brand.pink"
-              fontWeight={400}
-              bg="brand.blue"
-              textTransform="uppercase"
-              boxShadow="xl"
-              transition="all 0.25s ease-in-out"
-              _hover={{
-                // transform: "scale(1.02)",
-                color: "brand.blue",
-                bg: "brand.pink",
-              }}
-              focusBorderColor="transparent"
-              _active={{ bg: "brand.pink", color: "brand.blue" }}
-              _focus={{ bg: "brand.pink", color: "brand.blue" }}
-            >
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </Select>
-          </StatGroup>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </Select>
 
           <Button
-            bg="brand.blue"
-            color="brand.pink"
+            colorScheme="teal"
+            color="white"
             onClick={onOpen}
-            textTransform="uppercase"
-            fontSize="1rem"
-            boxShadow="xl"
-            p={2}
-            display="flex"
+            borderRadius="md"
             fontWeight={400}
-            justifyContent="flex-start"
-            borderRadius={12}
-            overflow="hidden"
-            transition="all 0.25s ease-in-out"
-            _active={{ bg: "brand.pink", color: "brand.blue" }}
-            _hover={{
-              bg: "brand.pink",
-              color: "brand.blue",
-              transform: "scale(0.99)",
-            }}
-            _focus={{ bg: "brand.pink", color: "brand.blue" }}
+            transition="all 0.3s ease-in-out"
           >
             + Add Event
           </Button>
         </SimpleGrid>
+        <Divider mt={6} />
+      </Box>
 
+      <Flex overflowY="auto" flexDirection="column" w="100%" flexGrow={1} p={2}>
         <SimpleGrid
-          columns={{ base: 1, sm: 2, xl: 3 }}
-          spacing={2}
-          height="calc(100vh - 2 * 2rem)"
-          overflow="auto"
+          spacing={4}
           borderRadius={12}
+          h={{ base: "100%", md: "100%" }}
+          minH={{ base: "100vh", md: "fit-content" }}
+          w="100%"
+          gridTemplateColumns="repeat(auto-fill, minmax(250px, 1fr))"
         >
           {filteredEvents.length ? (
             filteredEvents.map((event) => (
@@ -173,7 +144,7 @@ function EventsPage() {
             <Text>No events found.</Text>
           )}
         </SimpleGrid>
-      </VStack>
+      </Flex>
 
       <AddEventModal isOpen={isOpen} onClose={onClose} />
     </Flex>
