@@ -151,7 +151,7 @@ export default function Navigation() {
               {isOpen ? <CloseIcon /> : <HamburgerIcon />}
             </MenuButton>
 
-            <Box
+            <Flex
               ref={menuRef}
               bg="teal.200"
               position="absolute"
@@ -163,8 +163,10 @@ export default function Navigation() {
               flexDirection="column"
               alignItems="flex-start"
               justifyContent="center"
-              p={4}
+              px={6}
               borderRadius={12}
+              minH="100vh"
+              h="100%"
               border="none"
               zIndex={998}
             >
@@ -176,7 +178,7 @@ export default function Navigation() {
                   borderColor="teal.800"
                   width="80%"
                   textTransform="uppercase"
-                  fontSize="1.8em"
+                  fontSize="1.4em"
                   fontWeight="450"
                   position="relative"
                   display="inline-block"
@@ -196,7 +198,7 @@ export default function Navigation() {
                   {event.title}
                 </MenuItem>
               ))}
-            </Box>
+            </Flex>
           </Menu>
         </Flex>
       ) : (

@@ -82,7 +82,9 @@ function EventPage() {
   };
 
   return (
-    <Flex w="100%" maxH="100vh">
+    // <Flex w="100%" maxH="100vh">
+    // <Flex w="100%" h="auto">
+    <Flex w="100%" minH="100vh" flexDirection="column">
       <Box
         bg="teal.300"
         borderRadius={12}
@@ -91,7 +93,8 @@ function EventPage() {
         color="gray.900"
         w="100%"
         height={{
-          base: "calc(100vh - 2 * 4rem)",
+          base: "auto",
+          // base: "calc(100vh - 2 * 4rem)",
           md: "calc(100vh - 2 * 1rem)",
         }}
       >
@@ -123,7 +126,7 @@ function EventPage() {
 
         <Flex
           px={{ base: 5, sm: 7, md: 8 }}
-          py={{ base: 2, sm: 6, md: 8, xl: 10 }}
+          py={{ base: 4, sm: 6, md: 8, xl: 10 }}
           flexDirection="column"
           alignItems="stretch"
           justifyContent="center"
